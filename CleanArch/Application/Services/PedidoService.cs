@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using CleanArch.Domain.Entities;
 using CleanArch.Domain.Interfaces;
 using CleanArch.Domain.Events;
@@ -19,11 +20,13 @@ namespace CleanArch.Application.Services
 
         public async Task CriarNovoPedido(Pedido pedido)
         {
-            // 1. Salva no Banco de Dados (PostgreSQL)
             await _repository.AddAsync(pedido);
-
-            // 2. Notifica outros sistemas via RabbitMQ
             await _publishEndpoint.Publish(new PedidoCriadoEvent(pedido.Id, pedido.Total));
+        }
+
+        public async Task<IEnumerable<Pedido>> ObterTodosPedidos()
+        {
+            return await _repository.GetAllAsync();
         }
     }
 }
