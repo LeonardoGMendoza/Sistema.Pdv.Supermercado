@@ -42,7 +42,25 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Ativar Swagger
+// --- ADIÇÃO: Migração Automática do Banco ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.EnsureCreated(); // Cria o banco e as tabelas se não existirem
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocorreu um erro ao criar o banco de dados.");
+    }
+}
+// -------------------------------------------
+
+// 5. Configurar Pipeline de Requisições
+app.UseSwagger();
 if (app.Environment.IsDevelopment() || true) // Forçamos true para você ver no teste
 {
     app.UseSwagger();
