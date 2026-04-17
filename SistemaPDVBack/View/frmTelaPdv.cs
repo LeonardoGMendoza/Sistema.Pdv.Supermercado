@@ -1,8 +1,9 @@
-﻿//using MySqlX.XDevAPI.Relational;
+//using MySqlX.XDevAPI.Relational;
 using System.Data.SqlClient;
 using SistemaPDVBack.Controller;
 using SistemaPDVBack.Model;
 using SistemaPDVBack.View;
+using SistemaPDVBack.Service;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +25,7 @@ namespace SistemaPDVBack.View
 
         ControllerProdutoPedido controllerProdutoPedido;
         ControllerPedido controllerPedido;
+        private readonly ApiService _apiService = new ApiService();
 
 
 
@@ -411,6 +413,16 @@ namespace SistemaPDVBack.View
 
 
             controllerPedido.AdicionarPedido();
+
+            // --- ENVIO PARA A NUVEM (Dashboard) ---
+            _apiService.EnviarPedidoAsync(new {
+                ColaboradorId = 1, // Ajuste conforme necessário
+                ClienteId = 1,
+                Status = 1,
+                FormaPagamento = lblFormaPagamento.Text,
+                Total = decimal.Parse(lblTotal.Text)
+            });
+            // --------------------------------------
 
 
             foreach (DataGridViewRow coluna in dgvCarrinho.Rows)
