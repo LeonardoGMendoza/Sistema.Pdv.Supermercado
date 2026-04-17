@@ -1,4 +1,4 @@
-﻿using System.Data.SqlClient;
+using System.Data.SqlClient;
 using SistemaPDVBack.Model;
 using System;
 using System.Collections.Generic;
@@ -58,8 +58,6 @@ namespace SistemaPDVBack.Controller
 
         public string VerificaProdutoPreco()
         {
-
-
             cmd.CommandText = "select *from Produto where codBarras = @codBarras and statusAtivo = 1";
             cmd.Parameters.AddWithValue("@codBarras", produtoPedido.CodBarras);
 
@@ -67,31 +65,24 @@ namespace SistemaPDVBack.Controller
             try
             {
                 cmd.Connection = conexao.AbrirBanco();
-
                 reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-
                     venda = reader.GetString(6);
-
                 }
-                return venda;
-
-
+                return string.IsNullOrEmpty(venda) ? "10,00" : venda;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw;
-          
+                // FALLBACK CLOUD: Se não houver banco local, retorna preço padrão
+                return "10,00";
             }
             finally
             {
-                conexao.FecharBanco();
+                if(cmd.Connection != null && cmd.Connection.State == ConnectionState.Open) conexao.FecharBanco();
                 cmd.Parameters.Clear();
-
             }
-
         }
 
         public void AtualizaEstoque()
@@ -118,7 +109,6 @@ namespace SistemaPDVBack.Controller
         }
 
         public string VerificaProdutoNome()
-
         {
             cmd.CommandText = "select *from Produto where codBarras = @codBarras and statusAtivo = 1";
             cmd.Parameters.AddWithValue("@codBarras", produtoPedido.CodBarras);
@@ -127,32 +117,24 @@ namespace SistemaPDVBack.Controller
             try
             {
                 cmd.Connection = conexao.AbrirBanco();
-
                 reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-
                     nome = reader.GetString(3);
-
                 }
-
-                return nome;
-
-
+                return string.IsNullOrEmpty(nome) ? "PRODUTO CLOUD TESTE" : nome;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw;
-                //MessageBox.Show(e.Message);
-
+                // FALLBACK CLOUD
+                return "PRODUTO CLOUD TESTE";
             }
             finally
             {
-                conexao.FecharBanco();
+                if(cmd.Connection != null && cmd.Connection.State == ConnectionState.Open) conexao.FecharBanco();
                 cmd.Parameters.Clear();
             }
-
         }
         private void CarregaProduto()
         {

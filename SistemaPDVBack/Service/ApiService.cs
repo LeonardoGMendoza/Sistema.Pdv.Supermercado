@@ -35,8 +35,14 @@ namespace SistemaPDVBack.Service
 
         private string SerializePedido(dynamic p)
         {
-            // Serialização manual ultra-rápida (para evitar dependências no legatário)
-            return $"{{\"colaboradorId\": {p.ColaboradorId}, \"clienteId\": {p.ClienteId}, \"status\": {p.Status}, \"dataPedido\": \"{DateTime.Now:yyyy-MM-ddTHH:mm:ss}Z\", \"formaPagamento\": \"{p.FormaPagamento}\", \"total\": {p.Total.ToString().Replace(",", ".")}} }";
+            // Versão ultra-compatível com String.Format para evitar erros de chaves
+            return string.Format("{{ \"colaboradorId\": {0}, \"clienteId\": {1}, \"status\": {2}, \"dataPedido\": \"{3:yyyy-MM-ddTHH:mm:ss}Z\", \"formaPagamento\": \"{4}\", \"total\": {5} }}",
+                p.ColaboradorId, 
+                p.ClienteId, 
+                p.Status, 
+                DateTime.Now, 
+                p.FormaPagamento, 
+                p.Total.ToString().Replace(",", "."));
         }
     }
 }
