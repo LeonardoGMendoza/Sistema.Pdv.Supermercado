@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_pdv
+    environment:
+      POSTGRES_USER: leouser
+      POSTGRES_PASSWORD: leopassword
+      POSTGRES_DB: SistemaPDV
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_pdv
+    ports:
+      - "5672:5672"   # Porta do RabbitMQ
+      - "15672:15672" # Porta do Painel (Login guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  api:
+    build:
+      context: .
+      dockerfile: WebAPI/Dockerfile
+    container_name: webapi_pdv
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=SistemaPDV;Username=leouser;Password=leopassword
+      - RabbitMQ__Host=rabbitmq
+
+volumes:
+  postgres_data:
