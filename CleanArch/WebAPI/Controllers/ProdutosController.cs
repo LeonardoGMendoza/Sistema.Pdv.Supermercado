@@ -7,7 +7,7 @@ using CleanArch.Application.Services;
 namespace CleanArch.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/produtos")]
     public class ProdutosController : ControllerBase
     {
         private readonly ProdutoService _produtoService;
