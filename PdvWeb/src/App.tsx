@@ -267,7 +267,16 @@ export default function App() {
 
       {showScanner && (
         <Scanner 
-          onScan={(code) => setSearchTerm(code)}
+          onScan={(code) => {
+            const product = products.find(p => p.codigoBarras === code);
+            if (product) {
+              addToCart(product);
+            } else {
+              setSearchTerm(code);
+              alert(`PRODUTO NÃO ENCONTRADO!\nO Código de Barras escaneado foi: ${code}\n\nCadastre esse código de barras no seu sistema para ele ser adicionado automaticamente!`);
+            }
+            setShowScanner(false);
+          }}
           onClose={() => setShowScanner(false)}
         />
       )}
