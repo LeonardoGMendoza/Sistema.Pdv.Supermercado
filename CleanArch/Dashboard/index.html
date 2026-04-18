@@ -181,11 +181,14 @@
 
         async function fetchSales() {
             try {
+                console.log('Buscando vendas em:', API_URL);
                 const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Erro na API: ' + response.status);
                 const data = await response.json();
+                console.log('Vendas recebidas:', data);
                 updateDashboard(data);
             } catch (error) {
-                console.error('Error fetching sales:', error);
+                console.error('Erro no Dashboard:', error);
             }
         }
 
@@ -195,14 +198,25 @@
 
             let totalRev = 0;
 
+            if (!sales || sales.length === 0) {
+                body.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma venda encontrada.</td></tr>';
+                return;
+            }
+
             sales.forEach(sale => {
-                totalRev += sale.total;
+                // Suporte para PascalCase e camelCase
+                const id = sale.id || sale.Id;
+                const total = sale.total || sale.Total || 0;
+                const dataPedido = sale.dataPedido || sale.DataPedido;
+                const formaPagamento = sale.formaPagamento || sale.FormaPagamento || 'N/A';
+
+                totalRev += total;
                 const row = `
                     <tr>
-                        <td>#${sale.id}</td>
-                        <td>${new Date(sale.dataPedido).toLocaleString('pt-BR')}</td>
-                        <td>${sale.formaPagamento}</td>
-                        <td style="font-weight: 600;">R$ ${sale.total.toFixed(2)}</td>
+                        <td>#${id}</td>
+                        <td>${new Date(dataPedido).toLocaleString('pt-BR')}</td>
+                        <td>${formaPagamento}</td>
+                        <td style="font-weight: 600;">R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                         <td><span class="status-badge status-paid">Finalizado</span></td>
                     </tr>
                 `;
