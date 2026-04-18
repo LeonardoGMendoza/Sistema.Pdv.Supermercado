@@ -22,10 +22,22 @@ export default function App() {
 
   // Carregar produtos da API real
   useEffect(() => {
-    fetch('https://pdv.sandlj.com.br/api/Produtos')
-      .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Erro ao carregar produtos:", err));
+    const loadProducts = async () => {
+      try {
+        const response = await fetch('https://pdv.sandlj.com.br/api/Produtos');
+        if (!response.ok) throw new Error('Falha no HTTPS, tentando HTTP...');
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        console.warn(err);
+        // Fallback para HTTP caso o SSL do subdomínio não esteja pronto
+        fetch('http://pdv.sandlj.com.br/api/Produtos')
+          .then(res => res.json())
+          .then(data => setProducts(data))
+          .catch(e => console.error("API totalmente inacessível:", e));
+      }
+    };
+    loadProducts();
   }, []);
 
   const filteredProducts = products.filter(p => 
