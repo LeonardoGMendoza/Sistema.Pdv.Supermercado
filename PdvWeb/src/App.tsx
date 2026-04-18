@@ -17,7 +17,7 @@ interface CartItem extends Product {
 export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([
-    { id: 1, nome: "Arroz Integral 5kg", preco: 29.90, codigoBarras: "789123456" },
+    { id: 1, nome: "Arroz Integral (Testando Câmera)", preco: 29.90, codigoBarras: "7898690932175" },
     { id: 2, nome: "Feijão Carioca 1kg", preco: 8.50, codigoBarras: "789123457" },
     { id: 3, nome: "Azeite de Oliva 500ml", preco: 35.00, codigoBarras: "789123458" },
     { id: 4, nome: "Café Torrado 500g", preco: 18.90, codigoBarras: "789123459" },
@@ -272,8 +272,8 @@ export default function App() {
             if (product) {
               addToCart(product);
             } else {
-              setSearchTerm(code);
-              alert(`PRODUTO NÃO ENCONTRADO!\nO Código de Barras escaneado foi: ${code}\n\nCadastre esse código de barras no seu sistema para ele ser adicionado automaticamente!`);
+              setSearchTerm(''); // Evita que os produtos sumam da tela
+              alert(`PRODUTO NÃO ENCONTRADO!\nO Código lido foi: ${code}\n\nComo o sistema não conhece esse número, ele não foi pro carrinho. Acabei de cadastrar ele no Arroz para você testar!`);
             }
             setShowScanner(false);
           }}
