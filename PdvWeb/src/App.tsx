@@ -29,8 +29,8 @@ export default function App() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch('https://pdv.sandlj.com.br/api/estoque');
-        if (!response.ok) throw new Error('Falha no HTTPS, tentando HTTP...');
+        const response = await fetch('http://pdv.sandlj.com.br/api/estoque');
+        if (!response.ok) throw new Error('Falha no HTTP, tentando novamente...');
         const data = await response.json();
         setProducts(data);
       } catch (err) {
