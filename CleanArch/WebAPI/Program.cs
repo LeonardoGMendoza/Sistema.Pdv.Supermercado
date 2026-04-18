@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using CleanArch.Infrastructure.Data;
 using CleanArch.Infrastructure.Persistence;
 using CleanArch.Domain.Interfaces;
 using CleanArch.Application.Services;
 using MassTransit;
 using Microsoft.OpenApi.Models;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,20 +16,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 1. Configurar CORS
+// 2. Configurar CORS
 builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAll", builder => {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    options.AddPolicy("AllowAll", policy => {
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
 
-// 2. Configurar Injeção de Dependência
+// 3. Configurar Injeção de Dependência
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<PedidoService>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<ProdutoService>();
 
-// 3. Configurar RabbitMQ (MassTransit)
+// 4. Configurar RabbitMQ (MassTransit)
 builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
@@ -42,7 +44,7 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddControllers();
 
-// 4. Configurar Swagger
+// 5. Configurar Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -51,27 +53,26 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// --- ADIÇÃO: Migração Automática do Banco ---
+// --- Garantir que o banco de dados foi criado e os produtos foram injetados ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.EnsureCreated(); // Cria o banco e as tabelas se não existirem
+        context.Database.EnsureCreated(); 
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocorreu um erro ao criar o banco de dados.");
+        logger.LogError(ex, "Erro no Database Seed.");
     }
 }
-// -------------------------------------------
 
-// 5. Configurar Pipeline de Requisições
+// 6. Configurar Pipeline
 app.UseCors("AllowAll");
 
-if (app.Environment.IsDevelopment() || true) // Forçamos true para você ver no teste
+if (app.Environment.IsDevelopment() || true) 
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mercadinho Gil API v1"));
@@ -79,12 +80,5 @@ if (app.Environment.IsDevelopment() || true) // Forçamos true para você ver no
 
 app.UseAuthorization();
 app.MapControllers();
-
-// Garantir que o banco de dados foi criado e os produtos foram injetados
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
-}
 
 app.Run();
