@@ -60,15 +60,29 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    
+    int retries = 5;
+    while (retries > 0)
     {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.EnsureCreated(); 
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Erro no Database Seed.");
+        try
+        {
+            logger.LogInformation("Tentando conectar ao banco de dados... (Tentativas restantes: {retries})", retries);
+            context.Database.EnsureCreated(); 
+            logger.LogInformation("Banco de dados pronto e tabelas criadas!");
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries--;
+            logger.LogWarning("O banco ainda não está pronto. Esperando 5 segundos...");
+            System.Threading.Thread.Sleep(5000);
+            if (retries == 0)
+            {
+                logger.LogError(ex, "Erro fatal: Não foi possível conectar ao banco de dados.");
+            }
+        }
     }
 }
 
