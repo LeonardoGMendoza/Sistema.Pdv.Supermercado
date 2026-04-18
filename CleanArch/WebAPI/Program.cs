@@ -12,7 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Configurar PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql("Host=localhost;Database=SistemaPDV;Username=leouser;Password=leopassword"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 1. Configurar CORS
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAll", builder => {
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
 
 // 2. Configurar Injeção de Dependência
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
@@ -62,7 +69,8 @@ using (var scope = app.Services.CreateScope())
 // -------------------------------------------
 
 // 5. Configurar Pipeline de Requisições
-app.UseSwagger();
+app.UseCors("AllowAll");
+
 if (app.Environment.IsDevelopment() || true) // Forçamos true para você ver no teste
 {
     app.UseSwagger();

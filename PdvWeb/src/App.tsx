@@ -15,22 +15,31 @@ interface CartItem extends Product {
 
 export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFinishing, setIsFinishing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Mock de produtos (Em breve puxando da API)
-  const products: Product[] = [
-    { id: 1, nome: "Arroz Integral 5kg", preco: 29.90, codigoBarras: "789123456" },
-    { id: 2, nome: "Feijão Carioca 1kg", preco: 8.50, codigoBarras: "789123457" },
-    { id: 3, nome: "Azeite de Oliva Extra Virgem", preco: 35.00, codigoBarras: "789123458" },
-    { id: 4, nome: "Café Torrado e Moído 500g", preco: 18.90, codigoBarras: "789123459" },
-  ];
+  // Carregar produtos da API real
+  useEffect(() => {
+    fetch('https://pdv.sandlj.com.br/api/Produtos')
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error("Erro ao carregar produtos:", err));
+  }, []);
 
   const filteredProducts = products.filter(p => 
     p.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.codigoBarras.includes(searchTerm)
+    p.codigoBarras === searchTerm
   );
+
+  // Se bipar um código de barras exato, adiciona direto
+  useEffect(() => {
+    const product = products.find(p => p.codigoBarras === searchTerm);
+    if (product) {
+      addToCart(product);
+    }
+  }, [searchTerm, products]);
 
   const addToCart = (product: Product) => {
     setCart(prev => {
