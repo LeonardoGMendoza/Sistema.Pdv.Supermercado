@@ -1,6 +1,7 @@
 services:
   db:
-# ... (conteúdo do db)
+    image: postgres:latest
+    container_name: postgres_pdv
     environment:
       POSTGRES_USER: leouser
       POSTGRES_PASSWORD: leopassword
@@ -11,16 +12,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   rabbitmq:
-# ... (conteúdo do rabbitmq)
+    image: rabbitmq:3-management
+    container_name: rabbitmq_pdv
     ports:
-      - "5672:5672"   # Porta do RabbitMQ
-      - "15672:15672" # Porta do Painel (Login guest/guest)
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
   api:
-# ... (conteúdo da api)
+    build:
+      context: .
+      dockerfile: WebAPI/Dockerfile
     container_name: webapi_pdv
     ports:
       - "8080:8080"
