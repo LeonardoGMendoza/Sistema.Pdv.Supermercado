@@ -17,14 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2. Configurar CORS (Liberar Geral)
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAll", policy => {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .SetIsOriginAllowed(origin => true); // Liberar qualquer origem!
-    });
-});
+// CORS será gerenciado pelo Nginx
 
 // 3. Configurar Injeção de Dependência
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
@@ -87,7 +80,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // 6. Configurar Pipeline
-app.UseCors("AllowAll");
+// app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment() || true) 
 {
