@@ -94,8 +94,8 @@ export default function App() {
     };
 
     try {
-      // Chamada REAL para a sua API no Servidor Ubuntu
-      const response = await fetch('https://pdv.sandlj.com.br/api/pedidos', {
+      // Chamada REAL para a sua API no Servidor Ubuntu (Sem o S!)
+      const response = await fetch('http://pdv.sandlj.com.br/api/pedidos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
