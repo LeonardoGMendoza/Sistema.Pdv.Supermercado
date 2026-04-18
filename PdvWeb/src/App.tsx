@@ -31,14 +31,13 @@ export default function App() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch('http://pdv.sandlj.com.br/api/estoque');
+        const response = await fetch('https://pdv.sandlj.com.br/api/estoque');
         if (!response.ok) throw new Error('Falha no HTTP, tentando novamente...');
         const data = await response.json();
         setProducts(data);
       } catch (err) {
         console.warn(err);
-        // Fallback para HTTP caso o SSL do subdomínio não esteja pronto
-        fetch('http://pdv.sandlj.com.br/api/estoque')
+        fetch('https://pdv.sandlj.com.br/api/estoque')
           .then(res => res.json())
           .then(data => setProducts(data))
           .catch(e => console.error("API totalmente inacessível:", e));
@@ -96,8 +95,8 @@ export default function App() {
     };
 
     try {
-      // Chamada REAL para a sua API no Servidor Ubuntu (Sem o S!)
-      const response = await fetch('http://pdv.sandlj.com.br/api/pedidos', {
+      // Chamada REAL para a sua API no Servidor Ubuntu usando HTTPS
+      const response = await fetch('https://pdv.sandlj.com.br/api/pedidos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
