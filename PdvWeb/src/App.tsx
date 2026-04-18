@@ -52,26 +52,42 @@ export default function App() {
   const handleFinishSale = async (paymentMethod: string) => {
     setIsFinishing(true);
     
-    // Preparando o objeto para a nossa API C# / Postgres
+    // Preparando o objeto exatamente como a API C# espera
     const pedido = {
       colaboradorId: 1,
       clienteId: 1,
       status: 1,
       formaPagamento: paymentMethod,
       total: total,
-      timestamp: new Date().toISOString()
+      dataPedido: new Date().toISOString(),
+      itens: cart.map(item => ({
+        produtoId: item.id,
+        quantidade: item.quantity,
+        precoUnitario: item.preco
+      }))
     };
 
     try {
-      // Simulação de chamada de API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Chamada REAL para a sua API no Servidor Ubuntu
+      const response = await fetch('https://pdv.sandlj.com.br/api/Pedidos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*'
+        },
+        body: JSON.stringify(pedido)
+      });
       
-      // Aqui faríamos o POST para https://pdv.sandlj.com.br/api/Pedidos
-      console.log("Pedido Enviado para Postgres e Fiscal:", pedido);
+      if (!response.ok) throw new Error('Falha ao enviar pedido');
+
+      console.log("Pedido Salvo com Sucesso no Postgres e RabbitMQ!");
 
       setShowSuccess(true);
       setCart([]);
       setTimeout(() => setShowSuccess(false), 3000);
+    } catch (error) {
+      console.error("Erro na integração:", error);
+      alert("Erro ao salvar venda na nuvem. Verifique a conexão.");
     } finally {
       setIsFinishing(false);
     }
