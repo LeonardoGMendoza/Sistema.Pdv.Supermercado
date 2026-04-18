@@ -77,7 +77,14 @@ if (app.Environment.IsDevelopment() || true) // Forçamos true para você ver no
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mercadinho Gil API v1"));
 }
 
-app.UseRouting();
+app.UseAuthorization();
 app.MapControllers();
+
+// Garantir que o banco de dados foi criado e os produtos foram injetados
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 app.Run();
