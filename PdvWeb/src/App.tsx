@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Search, CreditCard, Banknote, Trash2, Package, CheckCircle2 } from 'lucide-react';
+import { ShoppingCart, Search, CreditCard, Banknote, Trash2, Package, CheckCircle2, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Scanner from './Scanner';
 
 interface Product {
   id: number;
@@ -24,6 +25,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFinishing, setIsFinishing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   // Carregar produtos da API real
   useEffect(() => {
@@ -131,16 +133,25 @@ export default function App() {
             </h1>
             <p className="text-slate-400 text-sm">Painel de Vendas Digital v2.0</p>
           </div>
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={20} />
-            <input 
-              type="text" 
-              placeholder="Pesquisar produto ou bipar código..."
-              className="bg-slate-800 border-2 border-white/5 rounded-2xl py-3 pl-12 pr-6 w-96 focus:outline-none focus:border-indigo-500/50 transition-all text-lg"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && filteredProducts.length > 0 && addToCart(filteredProducts[0])}
-            />
+          <div className="flex gap-4 items-center">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={20} />
+              <input 
+                type="text" 
+                placeholder="Pesquisar produto ou bipar código..."
+                className="bg-slate-800 border-2 border-white/5 rounded-2xl py-3 pl-12 pr-6 w-96 focus:outline-none focus:border-indigo-500/50 transition-all text-lg"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && filteredProducts.length > 0 && addToCart(filteredProducts[0])}
+              />
+            </div>
+            <button 
+              onClick={() => setShowScanner(true)}
+              className="bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group"
+              title="Abrir Scanner de Câmera"
+            >
+              <Camera size={24} className="group-hover:rotate-12 transition-transform" />
+            </button>
           </div>
         </header>
 
@@ -255,6 +266,12 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {showScanner && (
+        <Scanner 
+          onScan={(code) => setSearchTerm(code)}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
     </div>
   );
 }
