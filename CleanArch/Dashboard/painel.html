@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercadinho Gil - Live Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #ec4899;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0, transparent 50%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .stat-card h3 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 1rem;
+            color: #94a3b8;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-paid { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <p style="color: #94a3b8; font-size: 0.9rem;"><span class="live-indicator"></span>LIVE MONITORING</p>
+            <h1>Mercadinho Gil Hub</h1>
+        </div>
+        <div id="clock" style="font-size: 1.2rem; color: #94a3b8;"></div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Vendas Hoje</h3>
+            <div class="value" id="count-today">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Faturamento Total</h3>
+            <div class="value" id="total-revenue">R$ 0,00</div>
+        </div>
+        <div class="stat-card">
+            <h3>Ticket Médio</h3>
+            <div class="value" id="avg-ticket">R$ 0,00</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h2 style="margin-bottom: 1.5rem;">Últimas Transações</h2>
+        <table id="sales-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data/Hora</th>
+                    <th>Forma Pagto.</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="sales-body">
+                <!-- Data will appear here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = 'http://pdv.sandlj.com.br/api/pedidos';
+
+        async function fetchSales() {
+            try {
+                console.log('Buscando vendas em:', API_URL);
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Erro na API: ' + response.status);
+                const data = await response.json();
+                console.log('Vendas recebidas:', data);
+                updateDashboard(data);
+            } catch (error) {
+                console.error('Erro no Dashboard:', error);
+            }
+        }
+
+        function updateDashboard(sales) {
+            const body = document.getElementById('sales-body');
+            body.innerHTML = '';
+
+            let totalRev = 0;
+
+            if (!sales || sales.length === 0) {
+                body.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma venda encontrada.</td></tr>';
+                return;
+            }
+
+            sales.forEach(sale => {
+                // Suporte para PascalCase e camelCase
+                const id = sale.id || sale.Id;
+                const total = sale.total || sale.Total || 0;
+                const dataPedido = sale.dataPedido || sale.DataPedido;
+                const formaPagamento = sale.formaPagamento || sale.FormaPagamento || 'N/A';
+
+                totalRev += total;
+                const row = `
+                    <tr>
+                        <td>#${id}</td>
+                        <td>${new Date(dataPedido).toLocaleString('pt-BR')}</td>
+                        <td>${formaPagamento}</td>
+                        <td style="font-weight: 600;">R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                        <td><span class="status-badge status-paid">Finalizado</span></td>
+                    </tr>
+                `;
+                body.innerHTML += row;
+            });
+
+            document.getElementById('count-today').innerText = sales.length;
+            document.getElementById('total-revenue').innerText = `R$ ${totalRev.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            
+            const avg = sales.length > 0 ? totalRev / sales.length : 0;
+            document.getElementById('avg-ticket').innerText = `R$ ${avg.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        }
+
+        function updateClock() {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('pt-BR');
+        }
+
+        setInterval(fetchSales, 5000); // Update every 5 seconds
+        setInterval(updateClock, 1000);
+        fetchSales();
+    </script>
+</body>
+</html>
