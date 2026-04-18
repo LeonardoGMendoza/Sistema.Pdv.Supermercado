@@ -2,8 +2,6 @@ services:
   db:
     image: postgres:latest
     container_name: postgres_pdv
-    networks:
-      - pdv_network
     environment:
       POSTGRES_USER: leouser
       POSTGRES_PASSWORD: leopassword
@@ -12,38 +10,30 @@ services:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: always
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq_pdv
-    networks:
-      - pdv_network
     ports:
       - "5672:5672"
       - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+    restart: always
 
   api:
     build:
       context: .
       dockerfile: WebAPI/Dockerfile
     container_name: webapi_pdv
-    networks:
-      - pdv_network
     ports:
       - "8080:8080"
     depends_on:
       - db
       - rabbitmq
     environment:
-      ConnectionStrings__DefaultConnection: "Host=db;Database=SistemaPDV;Username=leouser;Password=leopassword"
-      RabbitMQ__Host: "rabbitmq"
-
-networks:
-  pdv_network:
-    driver: bridge
+      - ConnectionStrings__DefaultConnection=Host=db;Database=SistemaPDV;Username=leouser;Password=leopassword
+      - RabbitMQ__Host=rabbitmq
+    restart: always
 
 volumes:
   postgres_data:
