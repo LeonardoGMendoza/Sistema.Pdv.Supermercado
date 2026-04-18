@@ -7,7 +7,7 @@ using CleanArch.Application.Services;
 namespace CleanArch.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/pedidos")]
     public class PedidosController : ControllerBase
     {
         private readonly PedidoService _pedidoService;
