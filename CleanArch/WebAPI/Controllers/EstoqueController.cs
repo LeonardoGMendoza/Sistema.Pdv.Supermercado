@@ -7,12 +7,12 @@ using CleanArch.Application.Services;
 namespace CleanArch.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/produtos")]
-    public class ProdutosController : ControllerBase
+    [Route("api/estoque")]
+    public class EstoqueController : ControllerBase
     {
         private readonly ProdutoService _produtoService;
 
-        public ProdutosController(ProdutoService produtoService)
+        public EstoqueController(ProdutoService produtoService)
         {
             _produtoService = produtoService;
         }

@@ -24,14 +24,14 @@ export default function App() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch('https://pdv.sandlj.com.br/api/produtos');
+        const response = await fetch('https://pdv.sandlj.com.br/api/estoque');
         if (!response.ok) throw new Error('Falha no HTTPS, tentando HTTP...');
         const data = await response.json();
         setProducts(data);
       } catch (err) {
         console.warn(err);
         // Fallback para HTTP caso o SSL do subdomínio não esteja pronto
-        fetch('http://pdv.sandlj.com.br/api/produtos')
+        fetch('http://pdv.sandlj.com.br/api/estoque')
           .then(res => res.json())
           .then(data => setProducts(data))
           .catch(e => console.error("API totalmente inacessível:", e));
