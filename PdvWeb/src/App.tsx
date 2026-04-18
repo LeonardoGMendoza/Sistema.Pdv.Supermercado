@@ -15,7 +15,12 @@ interface CartItem extends Product {
 
 export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([
+    { id: 1, nome: "Arroz Integral 5kg", preco: 29.90, codigoBarras: "789123456" },
+    { id: 2, nome: "Feijão Carioca 1kg", preco: 8.50, codigoBarras: "789123457" },
+    { id: 3, nome: "Azeite de Oliva 500ml", preco: 35.00, codigoBarras: "789123458" },
+    { id: 4, nome: "Café Torrado 500g", preco: 18.90, codigoBarras: "789123459" },
+  ]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFinishing, setIsFinishing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
