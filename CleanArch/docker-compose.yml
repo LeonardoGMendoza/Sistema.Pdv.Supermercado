@@ -34,8 +34,8 @@ services:
       - db
       - rabbitmq
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=SistemaPDV;Username=leouser;Password=leopassword
-      - RabbitMQ__Host=rabbitmq
+      ConnectionStrings__DefaultConnection: "Host=postgres_pdv;Database=SistemaPDV;Username=leouser;Password=leopassword"
+      RabbitMQ__Host: "rabbitmq_pdv"
 
 volumes:
   postgres_data:
